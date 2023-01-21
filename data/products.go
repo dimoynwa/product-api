@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io"
 	"time"
+
+	"github.com/dimoynwa/product-api/generator"
 )
 
 type Product struct {
@@ -17,6 +19,11 @@ type Product struct {
 	DeletedOn   string  `json:"-"`
 }
 
+func (p *Product) FromJSON(r io.Reader) error {
+	dec := json.NewDecoder(r)
+	return dec.Decode(p)
+}
+
 type Products []*Product
 
 func (p *Products) ToJSON(writer io.Writer) error {
@@ -25,6 +32,12 @@ func (p *Products) ToJSON(writer io.Writer) error {
 
 func GetProducts() Products {
 	return productList
+}
+
+func AddProduct(prod *Product) {
+	id := generator.GenerateProductId()
+	prod.ID = id
+	productList = append(productList, prod)
 }
 
 var productList = Products{

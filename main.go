@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/dimoynwa/product-api/generator"
+
 	"github.com/dimoynwa/product-api/handlers"
 	"github.com/nicholasjackson/env"
 )
@@ -18,14 +20,16 @@ func main() {
 
 	env.Parse()
 
+	generator.InitProductIdGenerator()
+
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 
-	hh := handlers.NewHello(l)
+	// hh := handlers.NewHello(l)
 	ph := handlers.NewProducts(l)
 
 	sm := http.NewServeMux()
-	sm.Handle("/", hh)
-	sm.Handle("/product", ph)
+	// sm.Handle("/", hh)
+	sm.Handle("/products", ph)
 
 	serv := &http.Server{
 		Addr:         *bindAddress,
