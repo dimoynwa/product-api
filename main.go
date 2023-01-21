@@ -29,7 +29,7 @@ func main() {
 
 	sm := http.NewServeMux()
 	// sm.Handle("/", hh)
-	sm.Handle("/products", ph)
+	sm.Handle("/products/", ph)
 
 	serv := &http.Server{
 		Addr:         *bindAddress,
