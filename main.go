@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dimoynwa/product-api/generator"
+	"github.com/gorilla/mux"
 
 	"github.com/dimoynwa/product-api/handlers"
 	"github.com/nicholasjackson/env"
@@ -27,9 +28,17 @@ func main() {
 	// hh := handlers.NewHello(l)
 	ph := handlers.NewProducts(l)
 
-	sm := http.NewServeMux()
-	// sm.Handle("/", hh)
-	sm.Handle("/products/", ph)
+	sm := mux.NewRouter()
+	getProductsRouter := sm.Methods(http.MethodGet).Subrouter()
+	getProductsRouter.HandleFunc("/", ph.GetProducts)
+
+	putProductsRouter := sm.Methods(http.MethodPut).Subrouter()
+	putProductsRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
+	putProductsRouter.Use(ph.MiddlewareProductValidation)
+
+	postProductsRouter := sm.Methods(http.MethodPost).Subrouter()
+	postProductsRouter.HandleFunc("/", ph.AddProduct)
+	postProductsRouter.Use(ph.MiddlewareProductValidation)
 
 	serv := &http.Server{
 		Addr:         *bindAddress,
