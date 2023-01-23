@@ -7,14 +7,16 @@ import (
 	"time"
 
 	"github.com/dimoynwa/product-api/generator"
+	"github.com/dimoynwa/product-api/validation"
+	"github.com/go-playground/validator/v10"
 )
 
 type Product struct {
 	ID          int     `json:"id"`
-	Name        string  `json:"name"`
+	Name        string  `json:"name" validate:"required"`
 	Description string  `json:"description"`
-	Price       float32 `json:"price"`
-	SKU         string  `json:"sku"` // Internal Product ID
+	Price       float32 `json:"price" validate:"gt=0"`
+	SKU         string  `json:"sku" validate:"required,sku"` // Internal Product ID
 	CreatedOn   string  `json:"-"`
 	UpdatedOn   string  `json:"-"`
 	DeletedOn   string  `json:"-"`
@@ -29,6 +31,14 @@ type Products []*Product
 
 func (p *Products) ToJSON(writer io.Writer) error {
 	return json.NewEncoder(writer).Encode(p)
+}
+
+func (p *Product) Validate() error {
+	validator := validator.New()
+	validator.RegisterValidation("sku", validation.ValidateSku)
+
+	err := validator.Struct(p)
+	return err
 }
 
 func GetProducts() Products {
